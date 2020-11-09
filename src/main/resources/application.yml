@@ -1,0 +1,35 @@
+
+spring:
+  redis:
+    enable: false
+  datasource:
+    url: jdbc:mysql://139.196.101.188:3306/auth?charset=utf8mb4&useUnicode=true&serverTimezone=Asia/Shanghai&useSSL=true
+    username: root
+    password: cqmike
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    database-platform: org.hibernate.dialect.MySQL55Dialect
+    properties:
+      hibernate:
+        order_updates: true
+        order_inserts: true
+        jdbc:
+          batch_size: 1000
+          batch_versioned_data: true
+
+  jackson:
+    serialization:
+      indent-output: true
+# 雪花id生成使用
+workId: 1
+dataId: 1
+
+#logging:
+#  level:
+#    root: debug
+server:
+  port: 8080
+
