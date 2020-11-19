@@ -1,7 +1,9 @@
 
 spring:
   redis:
-    enable: false
+    host: localhost
+    port: 6379
+    timeout: 3000
   datasource:
     url: jdbc:mysql://139.196.101.188:3306/auth?charset=utf8mb4&useUnicode=true&serverTimezone=Asia/Shanghai&useSSL=true
     username: root
@@ -27,9 +29,9 @@ spring:
 workId: 1
 dataId: 1
 
-#logging:
-#  level:
-#    root: debug
+logging:
+  level:
+    root: debug
 server:
   port: 8080
 
