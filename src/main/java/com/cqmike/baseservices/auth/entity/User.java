@@ -19,10 +19,10 @@ import java.time.LocalDateTime;
 public class User extends BaseEntity {
 
     @Column(length = 32, nullable = false, columnDefinition = "DEFAULT '' COMMENT '登录名'")
-    private String userName;
+    private String username;
 
     @Column(length = 32, nullable = false, columnDefinition = "DEFAULT '' COMMENT '用户名'")
-    private String nickName;
+    private String nickname;
 
     @Column(length = 64, nullable = false, columnDefinition = "DEFAULT '' COMMENT '密码'")
     private String password;

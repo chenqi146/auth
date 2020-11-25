@@ -21,12 +21,12 @@ import java.io.IOException;
 @Slf4j
 public class JwtFilter extends GenericFilterBean {
 
-    private final JwtProvider provider;
+    private final JwtUtil provider;
     private final StringRedisTemplate stringRedisTemplate;
 
     public static final String TOKEN = "token";
 
-    public JwtFilter(JwtProvider provider, StringRedisTemplate stringRedisTemplate) {
+    public JwtFilter(JwtUtil provider, StringRedisTemplate stringRedisTemplate) {
         this.provider = provider;
         this.stringRedisTemplate = stringRedisTemplate;
     }
