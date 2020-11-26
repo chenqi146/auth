@@ -31,11 +31,14 @@ import java.util.Optional;
  **/
 @Slf4j
 @NoArgsConstructor
-@AllArgsConstructor
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private AuthenticationManager authenticationManager;
-    private JwtUtil jwtUtil;
+
+    public JWTAuthenticationFilter(AuthenticationManager authenticationManager) {
+        this.authenticationManager = authenticationManager;
+        super.setFilterProcessesUrl("/auth/login");
+    }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
@@ -54,7 +57,8 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     }
 
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+                                            FilterChain chain, Authentication authResult) throws IOException, ServletException {
         // 查看源代码会发现调用getPrincipal()方法会返回一个实现了`UserDetails`接口的对象
         // 所以就是JwtUser啦
         JwtUser jwtUser = (JwtUser) authResult.getPrincipal();
@@ -67,7 +71,8 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     }
 
     @Override
-    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+                                              AuthenticationException failed) throws IOException, ServletException {
         //当用户在没有授权的情况下访问受保护的REST资源时，将调用此方法发送403 Forbidden响应
         response.getWriter().write(JsonUtils.toJson(ReturnForm.error(CommonEnum.FORBIDDEN)));
     }
