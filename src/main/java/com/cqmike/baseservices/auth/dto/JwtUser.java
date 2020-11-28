@@ -1,13 +1,11 @@
 package com.cqmike.baseservices.auth.dto;
 
+import com.cqmike.baseservices.auth.entity.Menu;
 import com.cqmike.baseservices.auth.entity.User;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.ToString;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
+import java.util.List;
 
 /**
  * @program: baseServices
@@ -15,60 +13,22 @@ import java.util.Collection;
  * @author: chen qi
  * @create: 2020-11-25 23:01
  **/
+@Data
 @ToString
-public class JwtUser implements UserDetails {
+public class JwtUser {
 
-    @Getter
     private final Long id;
     private final String username;
-    @Getter
     private final String nickname;
-    @Setter
     private String password;
-    private Collection<? extends GrantedAuthority> authorities;
+    private List<Menu> menuList;
 
-    public JwtUser(User user) {
+    public JwtUser(User user, List<Menu> menuList) {
         this.id = user.getId();
         this.nickname = user.getNickname();
         this.username = user.getUsername();
         this.password = user.getPassword();
+        this.menuList = menuList;
     }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
-    }
-
-    @Override
-    public String getPassword() {
-        return password;
-    }
-
-    @Override
-    public String getUsername() {
-        return username;
-    }
-
-    // 账号是否未过期，默认是false，记得要改一下
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    // 账号是否未锁定，默认是false，记得也要改一下
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    // 账号凭证是否未过期，默认是false，记得还要改一下
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
 }

@@ -1,6 +1,7 @@
 package com.cqmike.baseservices.auth.repository;
 
 import com.cqmike.base.repository.BaseRepository;
+import com.cqmike.baseservices.auth.entity.Role;
 import com.cqmike.baseservices.auth.entity.User;
 import org.springframework.stereotype.Repository;
 
@@ -13,7 +14,6 @@ import java.util.Optional;
  * @create: 2020-11-25 22:50
  **/
 @Repository
-public interface UserRepository extends BaseRepository<User, Long> {
+public interface RoleRepository extends BaseRepository<Role, Long> {
 
-    Optional<User> findUserByUsername(String username);
 }

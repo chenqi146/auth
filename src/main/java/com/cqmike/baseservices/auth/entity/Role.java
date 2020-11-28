@@ -22,10 +22,10 @@ import javax.persistence.Table;
 @Table(name = "role")
 public class Role extends BaseEntity {
 
-    @Column(length = 64, nullable = false, columnDefinition = "DEFAULT '' COMMENT '角色名称'")
+    @Column(nullable = false, columnDefinition = "varchar(64) COMMENT '角色名称'")
     private String name;
 
-    @Column(length = 512, nullable = false, columnDefinition = "DEFAULT '' COMMENT '描述'")
+    @Column(columnDefinition = "varchar(256) COMMENT '描述'")
     private String description;
 
     @Column(length = 1, columnDefinition = "int DEFAULT 1 COMMENT '角色启用状态 1-启用, 0-禁用'")

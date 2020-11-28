@@ -18,26 +18,26 @@ import java.time.LocalDateTime;
 @Table(name = "user")
 public class User extends BaseEntity {
 
-    @Column(length = 32, nullable = false, columnDefinition = "DEFAULT '' COMMENT '登录名'")
-    private String username;
+    @Column(nullable = false, columnDefinition = "varchar(32) COMMENT '登录名'")
+    private String username = "";
 
-    @Column(length = 32, nullable = false, columnDefinition = "DEFAULT '' COMMENT '用户名'")
-    private String nickname;
+    @Column(nullable = false, columnDefinition = "varchar(32) COMMENT '用户名'")
+    private String nickname = "";
 
-    @Column(length = 64, nullable = false, columnDefinition = "DEFAULT '' COMMENT '密码'")
-    private String password;
+    @Column(nullable = false, columnDefinition = "varchar(64) COMMENT '密码'")
+    private String password = "";
 
-    @Column(length = 32, columnDefinition = "DEFAULT '' COMMENT '手机号码'")
-    private String phone;
+    @Column(columnDefinition = "varchar(32) COMMENT '手机号码'")
+    private String phone = "";
 
-    @Column(length = 512, columnDefinition = "DEFAULT '' COMMENT '头像'")
-    private String icon;
+    @Column(columnDefinition = "varchar(512) COMMENT '头像'")
+    private String icon = "";
 
-    @Column(length = 32, nullable = false, columnDefinition = "DEFAULT '' COMMENT '邮箱'")
-    private String email;
+    @Column(nullable = false, columnDefinition = "varchar(512) COMMENT '邮箱'")
+    private String email = "";
 
     @Convert(converter = LocalDateTimeAttributeConverter.class)
-    @Column(columnDefinition = "COMMENT '登录时间'")
+    @Column(columnDefinition = "datetime DEFAULT NULL COMMENT '登录时间'")
     private LocalDateTime lastLoginTime;
 
     @Column(length = 1, columnDefinition = "int DEFAULT 1 COMMENT '帐号启用状态 1-启用, 0-禁用'")
