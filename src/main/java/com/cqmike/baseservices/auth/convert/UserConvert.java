@@ -19,4 +19,5 @@ public interface UserConvert extends BaseConvert<User, UserDto> {
     @Mapping(target = "status", constant = "Y")
     @Override
     User from(UserDto dto);
+
 }

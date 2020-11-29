@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.ToString;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @program: baseServices
@@ -21,9 +22,9 @@ public class JwtUser {
     private final String username;
     private final String nickname;
     private String password;
-    private List<Menu> menuList;
+    private Set<Menu> menuList;
 
-    public JwtUser(User user, List<Menu> menuList) {
+    public JwtUser(User user, Set<Menu> menuList) {
         this.id = user.getId();
         this.nickname = user.getNickname();
         this.username = user.getUsername();

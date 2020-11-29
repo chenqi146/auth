@@ -5,7 +5,7 @@ spring:
     port: 6379
     timeout: 3000
   datasource:
-    url: jdbc:mysql://139.196.101.188:3306/auth?charset=utf8mb4&useUnicode=true&serverTimezone=Asia/Shanghai&useSSL=true
+    url: jdbc:mysql://139.196.101.188:3306/auth?characterEncoding=utf-8&useUnicode=true&serverTimezone=Asia/Shanghai&useSSL=true
     username: root
     password: cqmike
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -32,6 +32,10 @@ dataId: 1
 logging:
   level:
     root: debug
+    com:
+      alibaba: info
+    sun:
+      net: info
 server:
   port: 8080
 

@@ -1,7 +1,4 @@
 {
   "outPath": "./http_md",
-  "isStrict": true,
-  "responseBodyAdvice": {
-    "className":"com.cqmike.base.form.ReturnForm"
-  }
+  "isStrict": true
 }

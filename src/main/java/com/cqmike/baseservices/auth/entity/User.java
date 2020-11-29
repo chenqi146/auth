@@ -6,11 +6,10 @@ import com.cqmike.baseservices.auth.enums.ActiveEnum;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -42,5 +41,12 @@ public class User extends BaseEntity {
 
     @Column(length = 1, columnDefinition = "int DEFAULT 1 COMMENT '帐号启用状态 1-启用, 0-禁用'")
     private ActiveEnum status;
+
+    /**
+     * 配置多对多
+     */
+    @ManyToMany
+    @JoinTable
+    private Set<Role> roles = new HashSet<>();
 
 }
