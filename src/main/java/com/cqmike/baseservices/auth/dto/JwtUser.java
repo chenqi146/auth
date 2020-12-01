@@ -21,14 +21,16 @@ public class JwtUser {
     private final Long id;
     private final String username;
     private final String nickname;
-    private String password;
+    private final String phone;
+    private final String email;
     private Set<Menu> menuList;
 
     public JwtUser(User user, Set<Menu> menuList) {
         this.id = user.getId();
         this.nickname = user.getNickname();
         this.username = user.getUsername();
-        this.password = user.getPassword();
+        this.phone = user.getPhone();
+        this.email = user.getEmail();
         this.menuList = menuList;
     }
 

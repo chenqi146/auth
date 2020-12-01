@@ -56,7 +56,8 @@ public class AuthController extends BaseController {
         // 记得注册的时候把密码加密一下
         String md5 = SecureUtil.md5(userDto.getUsername() + userDto.getPassword() + Cons.CQMIKE);
         userDto.setPassword(md5);
-        return ReturnForm.ok(userService.create(userConvert.from(userDto)));
+        User from = userConvert.from(userDto);
+        return ReturnForm.ok(userService.create(from));
     }
 
     /**

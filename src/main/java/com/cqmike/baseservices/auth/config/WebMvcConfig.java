@@ -27,7 +27,7 @@ public class WebMvcConfig extends BaseAppConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         InterceptorRegistration interceptorRegistration = registry.addInterceptor(new AuthInterceptor(redisTemplate));
         interceptorRegistration.addPathPatterns("/**");
-        interceptorRegistration.excludePathPatterns("/auth/login");
+        interceptorRegistration.excludePathPatterns("/auth/login", "/auth/register");
         interceptorRegistration.excludePathPatterns("/error/**");
     }
 }
