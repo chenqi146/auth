@@ -1,9 +1,10 @@
 
 spring:
   redis:
-    host: localhost
-    port: 6379
+    host: 139.196.101.188
+    port: 63790
     timeout: 3000
+    password: cqmike
   datasource:
     url: jdbc:mysql://139.196.101.188:3306/auth?characterEncoding=utf-8&useUnicode=true&serverTimezone=Asia/Shanghai&useSSL=true
     username: root

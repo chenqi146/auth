@@ -52,7 +52,7 @@ public class AuthController extends BaseController {
     private final static String TOKEN_HEADER = "Authorization";
 
     @PostMapping("/register")
-    public ReturnForm<User> registerUser(@RequestBody UserDto userDto){
+    public ReturnForm<User> registerUser(@RequestBody UserDto userDto) {
         // 记得注册的时候把密码加密一下
         String md5 = SecureUtil.md5(userDto.getUsername() + userDto.getPassword() + Cons.CQMIKE);
         userDto.setPassword(md5);
@@ -61,7 +61,8 @@ public class AuthController extends BaseController {
     }
 
     /**
-     *  登录接口
+     * 登录接口
+     *
      * @param username 登录名
      * @param password 密码 前端须md5加密
      * @return
