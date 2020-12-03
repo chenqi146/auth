@@ -56,4 +56,12 @@ public class UserController extends BaseController {
         return ReturnForm.ok(result);
     }
 
+    @GetMapping("/{id}")
+    public ReturnForm<User> get(@PathVariable("id") Long id) {
+
+        User user = userService.findById(id);
+        user.setPassword(null);
+        return ReturnForm.ok(user);
+    }
+
 }

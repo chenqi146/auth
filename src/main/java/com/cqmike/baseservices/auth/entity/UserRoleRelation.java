@@ -21,10 +21,10 @@ import javax.persistence.Table;
 @Table(name = "user_role_relation")
 public class UserRoleRelation extends BaseEntity {
 
-    @Column(length = 32, nullable = false, columnDefinition = "bigint COMMENT '用户id'")
+    @Column(name = "user_id", length = 32, nullable = false, columnDefinition = "bigint COMMENT '用户id'")
     private Long userId;
 
-    @Column(length = 32, nullable = false, columnDefinition = "bigint COMMENT '角色id'")
+    @Column(name = "role_id", length = 32, nullable = false, columnDefinition = "bigint COMMENT '角色id'")
     private Long roleId;
 
 }

@@ -19,6 +19,7 @@ import com.cqmike.baseservices.auth.security.JwtUtil;
 import com.cqmike.baseservices.auth.service.MenuService;
 import com.cqmike.baseservices.auth.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotEmpty;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -47,7 +49,7 @@ public class AuthController extends BaseController {
 
     private final UserService userService;
     private final UserConvert userConvert;
-    private final StringRedisTemplate redisTemplate;
+    private final RedisTemplate redisTemplate;
 
     private final static String TOKEN_HEADER = "Authorization";
 
@@ -79,9 +81,9 @@ public class AuthController extends BaseController {
             throw new BusinessException("用户名或密码不存在");
         }
 
-        Set<Menu> menus = user.getRoles().stream().flatMap(r -> r.getMenus().stream()).collect(Collectors.toSet());
+        Set<Role> roles = new HashSet<>(user.getRoles());
 
-        JwtUser jwtUser = new JwtUser(user, menus);
+        JwtUser jwtUser = new JwtUser(user, roles);
         String token = JwtUtil.createToken(jwtUser);
         redisTemplate.opsForValue().set(TOKEN_HEADER + StrUtil.COLON + token, JsonUtils.toJson(jwtUser), 30, TimeUnit.MINUTES);
         return ReturnForm.ok(token);

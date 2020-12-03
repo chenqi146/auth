@@ -3,6 +3,7 @@ package com.cqmike.baseservices.auth.entity;
 import com.cqmike.base.entity.BaseEntity;
 import com.cqmike.baseservices.auth.enums.ActiveEnum;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -20,6 +21,7 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "role")
+@NoArgsConstructor
 public class Role extends BaseEntity {
 
     @Column(nullable = false, columnDefinition = "varchar(64) COMMENT '角色名称'")

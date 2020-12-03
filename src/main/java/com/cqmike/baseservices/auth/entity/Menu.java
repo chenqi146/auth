@@ -3,10 +3,7 @@ package com.cqmike.baseservices.auth.entity;
 import com.cqmike.base.entity.BaseEntity;
 import com.cqmike.baseservices.auth.enums.ActiveEnum;
 import com.cqmike.baseservices.auth.enums.MenuTypeEnum;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -22,6 +19,7 @@ import javax.persistence.Table;
 @Data
 @Entity
 @Table(name = "menu")
+@NoArgsConstructor
 public class Menu extends BaseEntity {
 
     @Column(nullable = false, columnDefinition = "varchar(64) COMMENT 'code'")

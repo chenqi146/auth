@@ -40,3 +40,9 @@ logging:
 server:
   port: 8080
 
+secure:
+  ignored:
+    urls:
+      - /auth/**
+      - /error**
+

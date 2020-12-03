@@ -1,10 +1,14 @@
 package com.cqmike.baseservices.auth.security;
 
 import cn.hutool.core.collection.CollUtil;
+import com.cqmike.base.util.JsonUtils;
+import com.cqmike.baseservices.auth.constant.Cons;
 import com.cqmike.baseservices.auth.dto.JwtUser;
 import com.cqmike.baseservices.auth.entity.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.jackson.io.JacksonDeserializer;
+import io.jsonwebtoken.lang.Maps;
 import io.jsonwebtoken.security.Keys;
 
 import javax.crypto.SecretKey;
@@ -32,7 +36,7 @@ public class JwtUtil {
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .setIssuer(ISS)
                 .setExpiration(new Date(System.currentTimeMillis() + 30 * 60 * 1000))
-                .claim("user", jwtUser)
+                .claim(Cons.TOKEN_USER, JsonUtils.toJson(jwtUser))
                 .setSubject(jwtUser.getUsername())
                 .setIssuedAt(new Date())
                 .compact();
@@ -43,9 +47,16 @@ public class JwtUtil {
         return getTokenBody(token).getSubject();
     }
 
+    public static <T> T getClaim(String token, String key, Class<T> tClass) {
+
+        String json = getTokenBody(token).get(key, String.class);
+        return JsonUtils.parse(json, tClass);
+    }
+
     private static Claims getTokenBody(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(SECRET).build()
+                .setSigningKey(SECRET)
+                .build()
                 .parseClaimsJws(token)
                 .getBody();
     }

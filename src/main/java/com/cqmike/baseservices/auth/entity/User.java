@@ -45,8 +45,9 @@ public class User extends BaseEntity {
     /**
      * 配置多对多
      */
-    @ManyToMany
-    @JoinTable
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "user_role_relation", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
     private Set<Role> roles = new HashSet<>();
 
 }
