@@ -42,12 +42,4 @@ public class User extends BaseEntity {
     @Column(length = 1, columnDefinition = "int DEFAULT 1 COMMENT '帐号启用状态 1-启用, 0-禁用'")
     private ActiveEnum status;
 
-    /**
-     * 配置多对多
-     */
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "user_role_relation", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
-    private Set<Role> roles = new HashSet<>();
-
 }

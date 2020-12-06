@@ -8,6 +8,7 @@ import com.cqmike.base.controller.BaseController;
 import com.cqmike.base.exception.BusinessException;
 import com.cqmike.base.form.ReturnForm;
 import com.cqmike.base.util.JsonUtils;
+import com.cqmike.base.util.RedisClient;
 import com.cqmike.baseservices.auth.constant.Cons;
 import com.cqmike.baseservices.auth.convert.UserConvert;
 import com.cqmike.baseservices.auth.dto.JwtUser;
@@ -15,12 +16,15 @@ import com.cqmike.baseservices.auth.dto.UserDto;
 import com.cqmike.baseservices.auth.entity.Menu;
 import com.cqmike.baseservices.auth.entity.Role;
 import com.cqmike.baseservices.auth.entity.User;
+import com.cqmike.baseservices.auth.enums.ActiveEnum;
 import com.cqmike.baseservices.auth.security.JwtUtil;
-import com.cqmike.baseservices.auth.service.MenuService;
 import com.cqmike.baseservices.auth.service.UserService;
+import io.jsonwebtoken.lang.Maps;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotEmpty;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -49,16 +54,24 @@ public class AuthController extends BaseController {
 
     private final UserService userService;
     private final UserConvert userConvert;
-    private final RedisTemplate redisTemplate;
+    private final RedisClient redisClient;
+
+    private final PasswordEncoder passwordEncoder;
 
     private final static String TOKEN_HEADER = "Authorization";
 
     @PostMapping("/register")
     public ReturnForm<User> registerUser(@RequestBody UserDto userDto) {
         // 记得注册的时候把密码加密一下
-        String md5 = SecureUtil.md5(userDto.getUsername() + userDto.getPassword() + Cons.CQMIKE);
-        userDto.setPassword(md5);
+        String username = userDto.getUsername();
+        User user = userService.findUserByUsername(username).orElse(null);
+        if (user != null) {
+            throw new BusinessException("用户名已存在");
+        }
+        String encode = passwordEncoder.encode(userDto.getPassword());
+        userDto.setPassword(encode);
         User from = userConvert.from(userDto);
+
         return ReturnForm.ok(userService.create(from));
     }
 
@@ -70,23 +83,25 @@ public class AuthController extends BaseController {
      * @return
      */
     @PostMapping("/login")
-    public ReturnForm<String> login(@NotEmpty(message = "登录名不能为空") String username,
-                                    @NotEmpty(message = "密码不能为空") String password) {
+    public ReturnForm<Map<String, String>> login(@NotEmpty(message = "登录名不能为空") String username,
+                                                 @NotEmpty(message = "密码不能为空") String password) {
 
-        User user = userService.findUserByUsername(username).orElseThrow(() -> new BusinessException("用户名或密码不存在"));
+        UserDetails userDetails = userService.loadUserByUsername(username);
 
-        String md5 = SecureUtil.md5(username + password + Cons.CQMIKE);
-
-        if (!Objects.equals(md5, user.getPassword())) {
+        if (!passwordEncoder.matches(password, userDetails.getPassword())) {
             throw new BusinessException("用户名或密码不存在");
         }
 
-        Set<Role> roles = new HashSet<>(user.getRoles());
+        if (!userDetails.isEnabled()) {
+            throw new BusinessException("该用户已被禁用");
+        }
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails,
+                null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String token = JwtUtil.createToken(userDetails.getUsername());
 
-        JwtUser jwtUser = new JwtUser(user, roles);
-        String token = JwtUtil.createToken(jwtUser);
-        redisTemplate.opsForValue().set(TOKEN_HEADER + StrUtil.COLON + token, JsonUtils.toJson(jwtUser), 30, TimeUnit.MINUTES);
-        return ReturnForm.ok(token);
+        redisClient.setex(TOKEN_HEADER + StrUtil.COLON + token, userDetails, 30 * 60);
+        return ReturnForm.ok(Maps.of("token", token).build());
     }
 
 }

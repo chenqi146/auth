@@ -1,5 +1,17 @@
 package com.cqmike.baseservices.auth.security;
 
+import cn.hutool.core.util.StrUtil;
+import com.cqmike.base.auth.Auth;
+import com.cqmike.base.exception.BusinessException;
+import com.cqmike.base.exception.CommonEnum;
+import com.cqmike.base.util.JsonUtils;
+import com.cqmike.base.util.RedisClient;
+import com.cqmike.baseservices.auth.constant.Cons;
+import com.cqmike.baseservices.auth.dto.JwtUser;
+import com.cqmike.baseservices.auth.entity.Role;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Table;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.access.SecurityMetadataSource;
@@ -12,6 +24,7 @@ import org.springframework.util.PathMatcher;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.*;
 
 /**
  * @program: baseServices
@@ -26,6 +39,9 @@ public class DynamicSecurityFilter extends AbstractSecurityInterceptor implement
 
     @Autowired
     private IgnoreUrlsConfig ignoreUrlsConfig;
+
+    @Autowired
+    private RedisClient redisClient;
 
     @Autowired
     public void setMyAccessDecisionManager(DynamicAccessDecisionManager dynamicAccessDecisionManager) {
@@ -53,14 +69,36 @@ public class DynamicSecurityFilter extends AbstractSecurityInterceptor implement
                 return;
             }
         }
+
+        String token = request.getHeader(Cons.TOKEN_HEADER);
+        if (StrUtil.isEmpty(token) || !StrUtil.startWith(token, Cons.TOKEN_PREFIX)) {
+            throw new BusinessException(CommonEnum.FORBIDDEN);
+        }
+
+        if (StrUtil.startWith(token, Cons.TOKEN_PREFIX)) {
+            token = StrUtil.removePrefix(token, Cons.TOKEN_PREFIX);
+        }
+
+        String key = Cons.TOKEN_HEADER + StrUtil.COLON + token;
+        boolean hasKey = redisClient.hasKey(key);
+        if (!hasKey) {
+            throw new BusinessException(CommonEnum.SIGNATURE_NOT_MATCH);
+        }
+
+        JwtUser user = redisClient.get(key, JwtUser.class);
+        // fixme auth空指针
+        Auth.put(Auth.USER, user);
+        redisClient.expire(key, 30 * 60);
+
         //此处会调用AccessDecisionManager中的decide方法进行鉴权操作
-        InterceptorStatusToken token = super.beforeInvocation(fi);
+        InterceptorStatusToken interceptorStatusToken = super.beforeInvocation(fi);
         try {
             fi.getChain().doFilter(fi.getRequest(), fi.getResponse());
         } finally {
-            super.afterInvocation(token, null);
+            super.afterInvocation(interceptorStatusToken, null);
         }
     }
+
 
     @Override
     public void destroy() {

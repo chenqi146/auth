@@ -30,14 +30,13 @@ public class JwtUtil {
     private static final String ISS = "cqmike";
 
     // 创建token
-    public static String createToken(JwtUser jwtUser) {
+    public static String createToken(String username) {
         SecretKey secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET));
         return Jwts.builder()
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .setIssuer(ISS)
                 .setExpiration(new Date(System.currentTimeMillis() + 30 * 60 * 1000))
-                .claim(Cons.TOKEN_USER, JsonUtils.toJson(jwtUser))
-                .setSubject(jwtUser.getUsername())
+                .setSubject(username)
                 .setIssuedAt(new Date())
                 .compact();
     }

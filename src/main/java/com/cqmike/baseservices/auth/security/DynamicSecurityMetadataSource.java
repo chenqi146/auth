@@ -1,17 +1,18 @@
 package com.cqmike.baseservices.auth.security;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
 import com.cqmike.base.exception.BusinessException;
 import com.cqmike.base.exception.CommonEnum;
+import com.cqmike.base.util.RedisClient;
 import com.cqmike.baseservices.auth.constant.Cons;
-import com.cqmike.baseservices.auth.dto.JwtUser;
 import com.cqmike.baseservices.auth.entity.Resource;
 import com.cqmike.baseservices.auth.entity.Role;
 import com.cqmike.baseservices.auth.service.DynamicSecurityService;
+import com.cqmike.baseservices.auth.service.ResourceService;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
@@ -35,7 +36,10 @@ public class DynamicSecurityMetadataSource implements FilterInvocationSecurityMe
     private DynamicSecurityService dynamicSecurityService;
 
     @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
+    private RedisClient redisClient;
+
+    @Autowired
+    private ResourceService resourceService;
 
     @PostConstruct
     public void loadDataSource() {
@@ -48,29 +52,14 @@ public class DynamicSecurityMetadataSource implements FilterInvocationSecurityMe
         this.loadDataSource();
         //获取当前访问的路径
         FilterInvocation o1 = (FilterInvocation) o;
-        HttpServletRequest request = o1.getHttpRequest();
-        String token = request.getHeader(Cons.TOKEN_HEADER);
-        if (StrUtil.isEmpty(token) || !StrUtil.startWith(token, Cons.TOKEN_PREFIX)) {
-            throw new BusinessException(CommonEnum.FORBIDDEN);
-        }
-
-        if (StrUtil.startWith(token, Cons.TOKEN_PREFIX)) {
-            token = StrUtil.removePrefix(token, Cons.TOKEN_PREFIX);
-        }
-        JwtUser jwtUser = JwtUtil.getClaim(token, Cons.TOKEN_USER, JwtUser.class);
-        Set<Role> roles = jwtUser.getRoles();
         // 当前用户所拥有角色对应的资源id List
+        // 此用户所有角色的资源idSet
 
-        Set<String> allRoleResourceIdSet = roles.stream().map(r -> redisTemplate.opsForSet().members(Cons.AUTH
-                + StrUtil.COLON + Cons.ROLE_RESOURCE_KEY + StrUtil.COLON + r.getId())).filter(Objects::nonNull)
-                .flatMap(s -> s.stream().map(Object::toString)).collect(Collectors.toSet());
-//        List<Set<String>> sets = redisTemplate.<String, Set<String>>opsForHash().multiGet(Cons.AUTH
-//                + StrUtil.COLON + Cons.ROLE_RESOURCE_KEY, roles.stream().map(r -> r.getId().toString()).collect(Collectors.toList()));
-//        // 此用户所有角色的资源idSet
-//        Set<String> allRoleResourceIdSet = sets.stream().flatMap(s -> s.stream().map(Object::toString)).collect(Collectors.toSet());
+        List<Resource> resourceList = resourceService.findAllFormCache();
 
-        List<Resource> resources = redisTemplate.<String, Resource>opsForHash()
-                .multiGet(Cons.AUTH + StrUtil.COLON + Cons.RESOURCE_KEY, allRoleResourceIdSet);
+        if (CollUtil.isEmpty(resourceList)) {
+            return Collections.emptyList();
+        }
 
         List<ConfigAttribute> configAttributes = new ArrayList<>();
 
@@ -78,10 +67,10 @@ public class DynamicSecurityMetadataSource implements FilterInvocationSecurityMe
         String path = URLUtil.getPath(url);
         PathMatcher pathMatcher = new AntPathMatcher();
 
-        for (Resource resource : resources) {
+        for (Resource resource : resourceList) {
             String pattern = resource.getUrl();
             if (pathMatcher.match(pattern, path)) {
-                configAttributes.add(new org.springframework.security.access.SecurityConfig(resource.getId() + ":" + resource.getName()));
+                configAttributes.add(new org.springframework.security.access.SecurityConfig(resource.getId() + StrUtil.COLON + resource.getName()));
             }
         }
         // 未设置操作请求权限，返回空集合

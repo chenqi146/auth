@@ -14,9 +14,12 @@ public class Cons {
     public final static String TOKEN_PREFIX = "Bearer ";
     public final static String TOKEN_USER = "user";
     public final static String AUTH = "AUTH";
+
+
     public final static String ROLE_RESOURCE_KEY = "RRK";
     public final static String RESOURCE_KEY = "RK";
-
-
+    public final static String USER_KEY = "U";
+    public final static String ROLE_KEY = "R";
+    public final static String USER_ROLE_KEY = "UR";
 
 }

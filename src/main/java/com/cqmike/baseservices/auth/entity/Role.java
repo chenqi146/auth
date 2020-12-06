@@ -36,11 +36,5 @@ public class Role extends BaseEntity {
     @Column(length = 5, columnDefinition = "int DEFAULT 0 COMMENT '排序 0最大'")
     private Integer sort;
 
-    /**
-     * 配置多对多
-     */
-    @ManyToMany
-    @JoinTable
-    private Set<Menu> menus = new HashSet<>();
 
 }
